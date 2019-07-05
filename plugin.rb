@@ -1,9 +1,10 @@
 # ---------------------------------------------------------------
-# name:  discourse-edx-lti
-# about: Discourse plugin to authenticate with LTI (eg., for an EdX course)
+# name:  discourse-lms-lti
+# about: Discourse plugin to authenticate with LTI (eg., for an D2L Brightspace and Instructure Canvas course)
 # version: 0.8.0
-# author: MIT Teaching Systems Lab
-# url: https://github.com/mit-teaching-systems-lab/discourse-edx-lti
+# author: William Weber
+# original_author: MIT Teaching Systems Lab
+# url: https://github.com/wlweber/discourse-d2l-lti
 # required_version: 1.9.0.beta8
 # ---------------------------------------------------------------
 
@@ -24,8 +25,8 @@ enabled_site_setting :lti_consumer_authenticate_url
 require_relative 'lti_strategy.rb'
 require_relative 'lti_authenticator.rb'
 auth_provider({
-  title: 'Click to login with EdX',
-  message: 'Click to login with EdX',
+  title: 'Click to login with LMS',
+  message: 'Click to login with LMS',
   authenticator: LTIAuthenticator.new,
   full_screen_login: true,
   custom_url: '/lti/redirect_to_consumer'
@@ -33,7 +34,7 @@ auth_provider({
 
 
 # This styles the login button, and overrides #login-form to
-# adds a little more separation between the EdX login button and
+# adds a little more separation between the LMS login button and
 # the the normal login form below (which is only for admin users).
 register_css <<CSS
 
@@ -55,35 +56,35 @@ register_css <<CSS
 CSS
 
 
-# This adds an endpoint that will redirect to the EdX URL.  This code is executed
+# This adds an endpoint that will redirect to the LMS URL.  This code is executed
 # after Rails initializes, since it's adding a controller that subclasses
 # `ApplicationController`.
 #
 # The way Discourse AuthProviders typically work, the authentication URL is
 # fixed.  Since we want to let admin users use the Discourse Admin UI to set the 
-# URL for a particular EdX course, we don't know the redirect URL at plugin boot
+# URL for a particular LMS course, we don't know the redirect URL at plugin boot
 # time.  The AuthProvider interface only supports passing in the redirect URL at
-# boot time, so we give it our new endpoint, and it will read the EdX URL from
-# `SiteSetting` and redirect to that EdX course.
+# boot time, so we give it our new endpoint, and it will read the LMS URL from
+# `SiteSetting` and redirect to that LMS course.
 after_initialize do
-  PLUGIN_NAME = 'discourse-edx-lti'.freeze
+  PLUGIN_NAME = 'discourse-lms-lti'.freeze
   # It uses an Engine since just drawing the route led to problems with loading the
   # controller class.  This method was drawn from the discourse-poll plugin.
-  module ::DiscourseEdxLti
+  module ::DiscourseLMSLti
     class Engine < ::Rails::Engine
       engine_name PLUGIN_NAME
-      isolate_namespace DiscourseEdxLti
+      isolate_namespace DiscourseLMSLti
     end
   end
-  DiscourseEdxLti::Engine.routes.draw do
+  DiscourseLMSLti::Engine.routes.draw do
     get '/redirect_to_consumer' => 'lti#redirect_to_consumer'
   end
   Discourse::Application.routes.append do
-    mount ::DiscourseEdxLti::Engine, at: '/lti'
+    mount ::DiscourseLMSLti::Engine, at: '/lti'
   end
 
   require_dependency 'application_controller'
-  class ::DiscourseEdxLti::LtiController < ::ApplicationController
+  class ::DiscourseLMSLti::LtiController < ::ApplicationController
     requires_plugin PLUGIN_NAME
 
     # Adapted from Discourse's StaticController#enter

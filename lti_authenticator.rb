@@ -32,8 +32,8 @@ class LTIAuthenticator < ::Auth::Authenticator
     # We also may need to modify the EdX username to conform to Discourse's username
     # validations.
     omniauth_params = auth_token[:info]
-    auth_result.username = build_discourse_username omniauth_params[:edx_username]
-    auth_result.name = omniauth_params[:edx_username]
+    auth_result.username = build_discourse_username omniauth_params[:lms_username]
+    auth_result.name = omniauth_params[:lms_username]
     auth_result.email = omniauth_params[:email]
     auth_result.email_valid = auth_result.email.present?
     lti_uid = auth_token[:uid]
@@ -95,7 +95,7 @@ class LTIAuthenticator < ::Auth::Authenticator
   # This method can lead to collapsing different EdX usernames into the same Discourse
   # username (eg, kevin__robinson and kevin_robinson), but the authentication methods above
   # require that email addresses match exactly as well.
-  def build_discourse_username(edx_username)
-    edx_username.slice(0, DISCOURSE_USERNAME_MAX_LENGTH).gsub('__','_').chomp('_')
+  def build_discourse_username(lms_username)
+    lms_username.slice(0, DISCOURSE_USERNAME_MAX_LENGTH).gsub('__','_').chomp('_')
   end
 end
