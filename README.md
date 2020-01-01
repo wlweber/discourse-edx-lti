@@ -1,3 +1,6 @@
+# Please Note
+*This file is from the original project that I branched.*
+
 # discourse-edx-lti
 This is a [Discourse](http://www.discourse.org/) plugin for using Discourse as a discussion forum in EdX courses.
 
